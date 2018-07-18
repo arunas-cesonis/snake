@@ -41,10 +41,8 @@ init =
   (initialModel, Cmd.none )
 
 type Msg
-  = NoOp
-    | Downs Char
+  = Downs Char
     | Tick
-
 
 px : Int -> String
 px n = toString n ++ "px"
@@ -139,8 +137,6 @@ stepSnake model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
-    NoOp ->
-      ( model, Cmd.none )
     Downs code ->
       ({model | lastKey = Just code}, Cmd.none )
     Tick ->
