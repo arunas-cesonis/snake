@@ -104,9 +104,17 @@ stepPart direction part =
 isWithinStage : Stage -> Part -> Bool
 isWithinStage {w, h} {x, y} = x > 0 && y > 0 && x < w && y < h
 
+part2part : Part -> Part -> Bool
+part2part p1 p2 =
+  p1.x == p2.x && p1.y == p2.y
+
 stepCollision : Model -> Model
 stepCollision model =
-  if not (isWithinStage model.stage model.hd) then initialModel else model
+  let
+    collidesWithStage = not (isWithinStage model.stage model.hd)
+    collidesWithSelf = List.any (part2part model.hd) model.tl
+  in
+    if collidesWithStage || collidesWithSelf then initialModel else model
 
 stepSnake : Model -> Model
 stepSnake model =
