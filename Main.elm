@@ -81,6 +81,18 @@ viewHead = viewPart "#005500"
 viewStage : Stage -> Html Msg
 viewStage s = rect "#666" 0 0 (s.w * 10) (s.h * 10)
 
+resetTarget : Model -> Model
+resetTarget model =
+  let
+    s0 = model.seed
+    (x, s1) = Random.step (Random.int 0 model.stage.w) s0
+    (y, s2) = Random.step (Random.int 0 model.stage.h) s1
+  in
+    { model |
+      seed = s2 
+    , target = {x = x, y = y}
+    }
+
 view : Model -> Html Msg
 view model =
   div []
