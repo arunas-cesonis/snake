@@ -19,11 +19,13 @@ type alias Model =
   , time: Int
   , direction: Direction
   , hd: Part
+  , parts: List Part
+  , length: Int
   }
 
 init : (Model, Cmd Msg)
 init =
-  ( {msg = "Hello", keys = S.empty, time = 0, direction = S, hd = {x = 10, y = 10}}, Cmd.none )
+  ( {msg = "Hello", keys = S.empty, time = 0, direction = S, hd = {x = 10, y = 10}, length = 5, parts = []}, Cmd.none )
 
 type Msg
   = NoOp
@@ -51,7 +53,7 @@ viewParts s = div [] (List.map viewPart s)
 view : Model -> Html Msg
 view model =
   div []
-      [text (toString model), viewPart model.hd]
+      [text (toString model), viewParts model.parts]
 
 updateDirection : Model -> Model
 updateDirection model = 
@@ -70,19 +72,27 @@ updateDirection model =
           W -> if up then N else if down then S else W
     }
 
+stepPart : Direction -> Part -> Part
+stepPart direction part =
+  case direction of
+    S -> { x = part.x, y = part.y + 1 }
+    N -> { x = part.x, y = part.y - 1 }
+    E -> { x = part.x + 1, y = part.y }
+    W -> { x = part.x - 1, y = part.y }
+
 stepSnake : Model -> Model
 stepSnake model =
   let
-    hd =
-      case model.direction of
-        S -> { x = model.hd.x, y = model.hd.y + 1 }
-        N -> { x = model.hd.x, y = model.hd.y - 1 }
-        E -> { x = model.hd.x + 1, y = model.hd.y }
-        W -> { x = model.hd.x - 1, y = model.hd.y }
+    currentHead =
+      case List.head model.parts of
+        Just hd -> hd
+        Nothing -> { x = 40, y = 40 }
+    newHead = stepPart model.direction currentHead
+    parts = newHead :: List.take model.length model.parts
   in
     { model |
       time = model.time + 1
-    , hd = hd
+    , parts = parts
     }
 
 update : Msg -> Model -> ( Model, Cmd Msg )
