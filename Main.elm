@@ -14,18 +14,15 @@ type alias Part =
 type Direction = N | S | E | W
 
 type alias Model =
-  { msg: String
-  , keys: S.Set Char
-  , time: Int
+  { keys: S.Set Char
   , direction: Direction
-  , hd: Part
   , parts: List Part
   , length: Int
   }
 
 init : (Model, Cmd Msg)
 init =
-  ( {msg = "Hello", keys = S.empty, time = 0, direction = S, hd = {x = 10, y = 10}, length = 5, parts = []}, Cmd.none )
+  ( {keys = S.empty, direction = S, length = 5, parts = []}, Cmd.none )
 
 type Msg
   = NoOp
@@ -90,10 +87,7 @@ stepSnake model =
     newHead = stepPart model.direction currentHead
     parts = newHead :: List.take model.length model.parts
   in
-    { model |
-      time = model.time + 1
-    , parts = parts
-    }
+    { model | parts = parts }
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
