@@ -2,6 +2,7 @@ module App exposing (..)
 import Html exposing (Html, div, text, program)
 import Html.Attributes exposing (style)
 import Keyboard exposing (..)
+import Random as Random
 import Time exposing (Time, second, millisecond)
 import Char exposing (fromCode)
 
@@ -24,6 +25,8 @@ type alias Model =
   , tl: List Part
   , length: Int
   , stage: Stage
+  , target: Part
+  , seed: Random.Seed
   }
 
 initialModel : Model
@@ -32,8 +35,10 @@ initialModel =
   , direction = S
   , length = 5
   , stage = {w=20, h=20}
+  , target = {x=1, y=1}
   , hd = {x=10,y=10}
   , tl = []
+  , seed = Random.initialSeed 999
   }
 
 init : (Model, Cmd Msg)
@@ -67,6 +72,9 @@ viewPart color p = rect color (p.x * 10) (p.y * 10) 10 10
 viewParts : List Part -> Html Msg
 viewParts s = div [] (List.map (viewPart "#002200") s)
 
+viewTarget : Part -> Html Msg
+viewTarget = viewPart "#990000"
+
 viewHead : Part -> Html Msg
 viewHead = viewPart "#005500"
 
@@ -78,6 +86,7 @@ view model =
   div []
       [ viewStage model.stage
       , viewHead model.hd
+      , viewTarget model.target
       , viewParts model.tl
       , div [style [("position", "absolute"), ("top", "250px")]] [text (toString model)]
       ]
