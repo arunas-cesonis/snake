@@ -1,5 +1,6 @@
 module App exposing (..)
 import Html exposing (Html, div, text, program)
+import Html.Attributes exposing (style)
 import Set as S
 import Keyboard exposing (..)
 import Time exposing (Time, second, millisecond)
@@ -31,7 +32,19 @@ type Msg
     | Tick
 
 viewPart : Part -> Html Msg
-viewPart s = div [] [text (toString s)]
+viewPart p =
+  let
+    s = style
+      [ ("backgroundColor", "black")
+      , ("position", "absolute")
+      , ("width", "10px")
+      , ("height", "10px")
+      , ("left", toString (10 * p.x) ++ "px")
+      , ("top", toString (10 * p.y) ++ "px")
+      ]
+  in
+    div [s] []
+
 viewParts : List Part -> Html Msg
 viewParts s = div [] (List.map viewPart s)
 
