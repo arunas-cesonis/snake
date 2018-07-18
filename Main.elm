@@ -59,11 +59,14 @@ rect color x y w h =
   in
     div [s] []
 
-viewPart : Part -> Html Msg
-viewPart p = rect "black" (p.x * 10) (p.y * 10) 10 10
+viewPart : String -> Part -> Html Msg
+viewPart color p = rect color (p.x * 10) (p.y * 10) 10 10
 
 viewParts : List Part -> Html Msg
-viewParts s = div [] (List.map viewPart s)
+viewParts s = div [] (List.map (viewPart "#002200") s)
+
+viewHead : Part -> Html Msg
+viewHead = viewPart "#005500"
 
 viewStage : Stage -> Html Msg
 viewStage s = rect "#666" 0 0 (s.w * 10) (s.h * 10)
@@ -72,7 +75,8 @@ view : Model -> Html Msg
 view model =
   div []
       [ viewStage model.stage
-      , viewParts (model.hd :: model.tl)
+      , viewHead model.hd
+      , viewParts model.tl
       , text (toString model)
       ]
 
@@ -141,7 +145,7 @@ subscriptions model =
   Sub.batch
     [ Keyboard.downs (\code -> Downs (fromCode code))
     , Keyboard.ups (\code -> Ups (fromCode code))
-    , Time.every (millisecond * 500) (\_-> Tick)
+    , Time.every (millisecond * 250) (\_-> Tick)
     ]
 
 main : Program Never Model Msg
