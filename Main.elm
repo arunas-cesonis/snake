@@ -21,14 +21,19 @@ type Direction = N | S | E | W
 type alias Model =
   { keys: S.Set Char
   , direction: Direction
-  , parts: List Part
+  , hd: Part
+  , tl: List Part
   , length: Int
   , stage: Stage
   }
 
+initialModel : Model
+initialModel =
+  {keys = S.empty, direction = S, length = 5, stage = {w=20, h=20}, hd = {x=10,y=10}, tl = []}
+
 init : (Model, Cmd Msg)
 init =
-  ( {keys = S.empty, direction = S, length = 5, stage = {w=20, h=20}, parts = []}, Cmd.none )
+  (initialModel, Cmd.none )
 
 type Msg
   = NoOp
@@ -67,7 +72,7 @@ view : Model -> Html Msg
 view model =
   div []
       [ viewStage model.stage
-      , viewParts model.parts
+      , viewParts (model.hd :: model.tl)
       , text (toString model)
       ]
 
@@ -96,17 +101,20 @@ stepPart direction part =
     E -> { x = part.x + 1, y = part.y }
     W -> { x = part.x - 1, y = part.y }
 
+isWithinStage : Stage -> Part -> Bool
+isWithinStage {w, h} {x, y} = x > 0 && y > 0 && x < w && y < h
+
+stepCollision : Model -> Model
+stepCollision model =
+  if not (isWithinStage model.stage model.hd) then initialModel else model
+
 stepSnake : Model -> Model
 stepSnake model =
   let
-    currentHead =
-      case List.head model.parts of
-        Just hd -> hd
-        Nothing -> { x = model.stage.w // 2, y = model.stage.h // 2 }
-    newHead = stepPart model.direction currentHead
-    parts = newHead :: List.take model.length model.parts
+    hd = stepPart model.direction model.hd
+    tl = List.take model.length (model.hd :: model.tl)
   in
-    { model | parts = parts }
+    { model | hd = hd, tl = tl }
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -118,7 +126,7 @@ update msg model =
     Ups code ->
       (updateDirection {model | keys = S.remove code model.keys}, Cmd.none )
     Tick ->
-      (stepSnake model, Cmd.none )
+      (stepCollision (stepSnake model), Cmd.none )
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
