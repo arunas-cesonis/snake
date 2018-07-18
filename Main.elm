@@ -93,6 +93,13 @@ resetTarget model =
     , target = {x = x, y = y}
     }
 
+resetTargetChecked : Model -> Model
+resetTargetChecked model =
+  let
+    m = resetTarget model
+  in
+    if List.any (part2part m.target) (m.hd :: m.tl) then resetTargetChecked m else model
+
 view : Model -> Html Msg
 view model =
   div []
@@ -155,13 +162,19 @@ stepSnake model =
   in
     { model | hd = hd, tl = tl }
 
+stepTarget : Model -> Model
+stepTarget model =
+  if part2part model.hd model.target
+  then resetTarget { model | length = model.length + 1 }
+  else model
+    
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
     Downs code ->
       ({model | lastKey = Just code}, Cmd.none )
     Tick ->
-      (stepCollision (stepSnake (updateDirection model)), Cmd.none)
+      (stepTarget (stepCollision (stepSnake (updateDirection model))), Cmd.none)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
