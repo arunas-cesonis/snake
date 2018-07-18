@@ -11,6 +11,11 @@ type alias Part =
   , y: Int
   }
 
+type alias Stage =
+  { w: Int
+  , h: Int
+  }
+
 type Direction = N | S | E | W
 
 type alias Model =
@@ -18,11 +23,12 @@ type alias Model =
   , direction: Direction
   , parts: List Part
   , length: Int
+  , stage: Stage
   }
 
 init : (Model, Cmd Msg)
 init =
-  ( {keys = S.empty, direction = S, length = 5, parts = []}, Cmd.none )
+  ( {keys = S.empty, direction = S, length = 5, stage = {w=20, h=20}, parts = []}, Cmd.none )
 
 type Msg
   = NoOp
@@ -30,27 +36,40 @@ type Msg
     | Ups Char
     | Tick
 
-viewPart : Part -> Html Msg
-viewPart p =
+
+px : Int -> String
+px n = toString n ++ "px"
+
+rect : String -> Int -> Int -> Int -> Int -> Html Msg
+rect color x y w h =
   let
     s = style
-      [ ("backgroundColor", "black")
+      [ ("backgroundColor", color)
       , ("position", "absolute")
-      , ("width", "10px")
-      , ("height", "10px")
-      , ("left", toString (10 * p.x) ++ "px")
-      , ("top", toString (10 * p.y) ++ "px")
+      , ("width", px w)
+      , ("height", px h)
+      , ("left", px x)
+      , ("top", px y)
       ]
   in
     div [s] []
 
+viewPart : Part -> Html Msg
+viewPart p = rect "black" (p.x * 10) (p.y * 10) 10 10
+
 viewParts : List Part -> Html Msg
 viewParts s = div [] (List.map viewPart s)
+
+viewStage : Stage -> Html Msg
+viewStage s = rect "#666" 0 0 (s.w * 10) (s.h * 10)
 
 view : Model -> Html Msg
 view model =
   div []
-      [text (toString model), viewParts model.parts]
+      [ viewStage model.stage
+      , viewParts model.parts
+      , text (toString model)
+      ]
 
 updateDirection : Model -> Model
 updateDirection model = 
@@ -83,7 +102,7 @@ stepSnake model =
     currentHead =
       case List.head model.parts of
         Just hd -> hd
-        Nothing -> { x = 40, y = 40 }
+        Nothing -> { x = model.stage.w // 2, y = model.stage.h // 2 }
     newHead = stepPart model.direction currentHead
     parts = newHead :: List.take model.length model.parts
   in
