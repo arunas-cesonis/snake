@@ -28,7 +28,13 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-  {lastKey = Nothing, direction = S, length = 5, stage = {w=20, h=20}, hd = {x=10,y=10}, tl = []}
+  { lastKey = Nothing
+  , direction = S
+  , length = 5
+  , stage = {w=20, h=20}
+  , hd = {x=10,y=10}
+  , tl = []
+  }
 
 init : (Model, Cmd Msg)
 init =
@@ -138,7 +144,7 @@ update msg model =
     Downs code ->
       ({model | lastKey = Just code}, Cmd.none )
     Tick ->
-      (stepCollision (stepSnake (updateDirection model)), Cmd.none )
+      (stepCollision (stepSnake (updateDirection model)), Cmd.none)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
